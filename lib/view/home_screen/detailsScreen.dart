@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:wallpaper_manager/wallpaper_manager.dart';
 
 class DetailsScreen extends StatefulWidget {
-  final id;
+  final String id;
 
   DetailsScreen(this.id);
 

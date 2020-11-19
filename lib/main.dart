@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:wallpaperapp/screens/collections.dart';
-import 'package:wallpaperapp/screens/latest.dart';
-import 'package:wallpaperapp/screens/popular.dart';
+import 'package:provider/provider.dart';
+import 'package:wallpaperapp/view/home_screen/home_screen.dart';
+import 'package:wallpaperapp/view/welcome_screen.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart' as pathProvider;
+import 'package:wallpaperapp/viewmodel/home_modelView.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 // key = 2IdNkr2kuazZtmUzEUG4n833IOvVi6U4I4VoGbVTDiw
 
-void main() {
+const settingBox = 'settingBox';
+const favBox = 'favBox';
+
+void main() async {
+  await Hive.initFlutter();
+  await Hive.openBox(settingBox);
+  await Hive.openBox(favBox);
   runApp(MyApp());
 }
 
@@ -14,102 +25,44 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-  TabController _tabController;
-  int selectedIndex;
-  List<Widget> _children;
-  List<String> appBarText;
-
+class _MyAppState extends State<MyApp> {
+  bool _isSkipped;
+  bool _loggedIn;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    appBarText = ['Wallpapers', 'Collections', 'Favourites'];
-    _tabController = new TabController(length: 2, vsync: this);
-    selectedIndex = 0;
-    _children = [
-      TabBarView(
-        children: [
-          LatestScreen(),
-          PopularScreen(),
-        ],
-        controller: _tabController,
-      ),
-      Collections(),
-      Container(),
-    ];
+  }
+
+  @override
+  void dispose() {
+    Hive.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ChangeNotifierProvider(
+      create: (context)=>HomePageViewModel(),
+      child: MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.black,
       ),
       title: 'Wallpaper App',
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(appBarText[selectedIndex]),
-          bottom: selectedIndex != 0
-              ? null
-              : TabBar(
-                  tabs: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'LATEST',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      'POPULAR',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                  controller: _tabController,
-                ),
-        ),
-        body: _children[selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Colors.black,
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.wallpaper),
-              title: Text('Wallpapers'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.collections),
-              title: Text('Collections'),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              title: Text('Favourites'),
-            ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.settings),
-            //   title: Text('Settings'),
-            // ),
-          ],
-          currentIndex: selectedIndex,
-          selectedItemColor: Colors.blueAccent,
-          unselectedItemColor: Colors.white,
-          onTap: (index) {
-            onItemTapped(index);
-          },
-        ),
+      home: ValueListenableBuilder(
+        valueListenable: Hive.box(settingBox).listenable(),
+        builder: (context, box, widget) {
+          _isSkipped = box.get('isSkipped', defaultValue: true);
+          _loggedIn = box.get('loggedIn', defaultValue: false);
+          return (_isSkipped && !_loggedIn) ? WelcomeScreen() : HomeScreen();
+        },
+        //child: WelcomeScreen(),
       ),
-    );
-  }
-
-  void onItemTapped(int index) {
-    setState(() {
-      selectedIndex = index;
-    });
+      builder: (BuildContext context, Widget child) {
+        /// make sure that loading can be displayed in front of all other widgets
+        return FlutterEasyLoading(child: child);
+      },
+    ),
+      );
   }
 }
