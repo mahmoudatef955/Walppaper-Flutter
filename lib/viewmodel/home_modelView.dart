@@ -2,13 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:wallpaperapp/services/authentication.dart';
+import 'package:wallpaperapp/services/webService.dart';
 
 // var mv = Provider.of<HomePageViewModel>(context, listen: false);
 
 class HomePageViewModel extends ChangeNotifier {
   Authentication _auth = Authentication();
+  WebService _webService = WebService();
   Box settingBox = Hive.box('settingBox');
-  Box favBox = Hive.box('favBox');
+  Box<String> favoriteImageBox = Hive.box('favBox');
   bool loginScreen = true;
 
   void toggleScreen() {
@@ -16,6 +18,7 @@ class HomePageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+/////////////////////// authintication/////////////////////////////////////
   void skipAuthentication() {
     settingBox.put('isSkipped', false);
     notifyListeners();
@@ -25,12 +28,11 @@ class HomePageViewModel extends ChangeNotifier {
       GlobalKey<FormState> formKey, String email, String password) {
     final isValid = formKey.currentState.validate();
     if (isValid) {
-    
-    _auth.signInWithEmailAndPassword(email, password);
-    settingBox.put('loggedIn', true);
-    settingBox.put('isSkipped', false);
-    formKey.currentState.save();
-    notifyListeners();
+      _auth.signInWithEmailAndPassword(email, password);
+      settingBox.put('loggedIn', true);
+      settingBox.put('isSkipped', false);
+      formKey.currentState.save();
+      notifyListeners();
     }
   }
 
@@ -70,5 +72,27 @@ class HomePageViewModel extends ChangeNotifier {
       settingBox.put('uID', null);
       notifyListeners();
     });
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  ///                Favourite Wallpapers                                    ////
+  ///////////////////////////////////////////////////////////////////////////////
+
+  void onFavoritePress(String imageId, String imageUrl) {
+    if (favoriteImageBox.containsKey(imageId)) {
+      favoriteImageBox.delete(imageId);
+      notifyListeners();
+      return;
+    }
+    favoriteImageBox.put(imageId, imageUrl);
+    notifyListeners();
+  }
+
+  Future<List> fetchImages(int pageNumber, String orderBy) {
+    return _webService.fetchImages(pageNumber, orderBy);
+  }
+
+  Future<List> fetchMoreImages(int pageNumber, String orderBy) {
+    return _webService.fetchMoreImages(pageNumber, orderBy);
   }
 }

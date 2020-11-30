@@ -3,11 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 
 class WebService {
-  Future<List> fetchImages(int pageNumber) async {
-    // var getdata = await http.get(
+  Future<List> fetchImages(int pageNumber, String orderBy) async {
     String url =
-        'https://api.unsplash.com/photos?client_id=2IdNkr2kuazZtmUzEUG4n833IOvVi6U4I4VoGbVTDiw&page=$pageNumber&order_by=popular';
-    //  'https://api.unsplash.com/search/photos?per_page=30&client_id=2IdNkr2kuazZtmUzEUG4n833IOvVi6U4I4VoGbVTDiw&query=nature');
+        'https://api.unsplash.com/photos?client_id=2IdNkr2kuazZtmUzEUG4n833IOvVi6U4I4VoGbVTDiw&page=$pageNumber&order_by=$orderBy';
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -19,11 +17,10 @@ class WebService {
     }
   }
 
-  Future<List> fetchMoreImages(int pageNumber) async {
+  Future<List> fetchMoreImages(int pageNumber, String orderBy) async {
     // var getdata = await http.get(
     String url =
-        'https://api.unsplash.com/photos?client_id=2IdNkr2kuazZtmUzEUG4n833IOvVi6U4I4VoGbVTDiw&page=$pageNumber&order_by=popular';
-    //  'https://api.unsplash.com/search/photos?per_page=30&client_id=2IdNkr2kuazZtmUzEUG4n833IOvVi6U4I4VoGbVTDiw&query=nature');
+        'https://api.unsplash.com/photos?client_id=2IdNkr2kuazZtmUzEUG4n833IOvVi6U4I4VoGbVTDiw&page=$pageNumber&order_by=$orderBy';
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
