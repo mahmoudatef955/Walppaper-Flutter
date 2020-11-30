@@ -6,8 +6,102 @@ import 'package:wallpaperapp/viewmodel/home_modelView.dart';
 import 'package:provider/provider.dart';
 import 'detailsScreen.dart';
 
-class Favourite extends StatelessWidget {
+class Favourite extends StatefulWidget {
+  @override
+  _FavouriteState createState() => _FavouriteState();
+}
+
+class _FavouriteState extends State<Favourite> {
   Box<String> favoriteImageBox = Hive.box('favBox');
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (!Provider.of<HomePageViewModel>(context, listen: false).isLogged()) {
+      Future.delayed(Duration(seconds: 0)).then((_) {
+        showModalBottomSheet(
+            context: context,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+            builder: (builder) {
+              return Container(
+                color: Colors.grey[900],
+                height: 120,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Login',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Container(
+                                child: Text(
+                              'Upload your favourite wallpapers to our serverss and sync them with other devices.',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w200),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
+                            )),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            MaterialButton(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                color: Colors.black,
+                                child: Text(
+                                  'Login',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                                onPressed: () {}),
+                            GestureDetector(
+                              onTap: ()=>Navigator.pop(context),
+                              child: Text(
+                                'DISMISS',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
@@ -38,11 +132,6 @@ class ImageGridView extends StatefulWidget {
 class _ImageGridViewState extends State<ImageGridView> {
   int currentPageNumber = 1;
   WebService webService = WebService();
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

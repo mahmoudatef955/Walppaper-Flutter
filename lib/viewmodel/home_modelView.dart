@@ -21,6 +21,7 @@ class HomePageViewModel extends ChangeNotifier {
 /////////////////////// authintication/////////////////////////////////////
   void skipAuthentication() {
     settingBox.put('isSkipped', false);
+    settingBox.put('loggedIn', false);
     notifyListeners();
   }
 
@@ -34,6 +35,10 @@ class HomePageViewModel extends ChangeNotifier {
       formKey.currentState.save();
       notifyListeners();
     }
+  }
+
+  bool isLogged() {
+    return settingBox.get('loggedIn');
   }
 
   void registerInSubmit(GlobalKey<FormState> formKey, String email,
